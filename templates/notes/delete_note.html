@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+
+{% block title %}删除笔记{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card glass-effect">
+                <div class="card-body">
+                    <h4 class="card-title text-center mb-4">确认删除</h4>
+                    <div class="alert alert-warning">
+                        <p class="mb-0">您确定要删除这条笔记吗？此操作不可撤销。</p>
+                    </div>
+                    
+                    <div class="card mb-4">
+                        <div class="card-body">
+                            <h6 class="card-subtitle mb-2 text-muted">笔记内容</h6>
+                            <p class="card-text">{{ note.content }}</p>
+                            <div class="text-muted small">
+                                <i class="bi bi-clock"></i> 创建于：{{ note.created_at|date:"Y-m-d H:i" }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <form method="post" class="text-center">
+                        {% csrf_token %}
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-danger">确认删除</button>
+                            <a href="{% url 'notes:note_detail' note.id %}" class="btn btn-outline-secondary">取消</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .glass-effect {
+        background: rgba(255, 255, 255, 0.9);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    }
+</style>
+{% endblock %} 

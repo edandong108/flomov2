@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+
+{% block title %}个人资料{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card glass-effect">
+                <div class="card-body">
+                    <h4 class="card-title mb-4">个人资料</h4>
+                    
+                    <div class="row mb-4">
+                        <div class="col-md-4">
+                            <div class="profile-stat text-center p-3 glass-effect rounded">
+                                <h2 class="mb-1">{{ note_count }}</h2>
+                                <p class="text-muted mb-0">笔记数量</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="profile-stat text-center p-3 glass-effect rounded">
+                                <h2 class="mb-1">{{ tag_count }}</h2>
+                                <p class="text-muted mb-0">标签数量</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="profile-stat text-center p-3 glass-effect rounded">
+                                <h2 class="mb-1">{{ favorite_count }}</h2>
+                                <p class="text-muted mb-0">收藏数量</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="user-info">
+                        <div class="mb-3">
+                            <label class="form-label text-muted">用户名</label>
+                            <p class="form-control-static">{{ user.username }}</p>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label text-muted">邮箱</label>
+                            <p class="form-control-static">{{ user.email }}</p>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label text-muted">加入时间</label>
+                            <p class="form-control-static">{{ user.date_joined|date:"Y-m-d H:i" }}</p>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label text-muted">最后登录</label>
+                            <p class="form-control-static">{{ user.last_login|date:"Y-m-d H:i" }}</p>
+                        </div>
+                    </div>
+
+                    <div class="text-center mt-4">
+                        <a href="{% url 'notes:index' %}" class="btn btn-outline-primary">
+                            <i class="bi bi-arrow-left"></i> 返回首页
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .profile-stat {
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        transition: all 0.3s ease;
+    }
+
+    .profile-stat:hover {
+        transform: translateY(-5px);
+    }
+
+    .profile-stat h2 {
+        color: var(--primary-color);
+        font-weight: 600;
+    }
+
+    .form-control-static {
+        padding: 0.5rem;
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 0.25rem;
+        margin: 0;
+    }
+
+    .form-label {
+        font-size: 0.875rem;
+        margin-bottom: 0.25rem;
+    }
+</style>
+{% endblock %} 

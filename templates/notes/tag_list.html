@@ -1,0 +1,95 @@
+{% extends 'base.html' %}
+
+{% block title %}标签管理 - Flomo2{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h4>标签管理</h4>
+            <a href="{% url 'notes:add_tag' %}" class="btn btn-primary">添加标签</a>
+        </div>
+        
+        {% if tags %}
+            <div class="card">
+                <div class="card-body">
+                    <div class="tag-management">
+                        {% for tag in tags %}
+                            <div class="tag-item mb-3">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <span class="badge tag-badge" style="background-color: {{ tag.color }}">{{ tag.name }}</span>
+                                        <span class="text-muted ms-2">{{ tag.notes.count }} 笔记</span>
+                                    </div>
+                                    <div>
+                                        <a href="{% url 'notes:tag_detail' tag.id %}" class="btn btn-sm btn-outline-secondary">查看</a>
+                                        <a href="{% url 'notes:edit_tag' tag.id %}" class="btn btn-sm btn-outline-primary">编辑</a>
+                                        <a href="{% url 'notes:delete_tag' tag.id %}" class="btn btn-sm btn-outline-danger">删除</a>
+                                    </div>
+                                </div>
+                                
+                                {% if tag.children.all %}
+                                    <div class="ms-4 mt-2">
+                                        {% for child in tag.children.all %}
+                                            <div class="tag-item mb-2">
+                                                <div class="d-flex justify-content-between align-items-center">
+                                                    <div>
+                                                        <span class="badge tag-badge" style="background-color: {{ child.color }}">{{ child.name }}</span>
+                                                        <span class="text-muted ms-2">{{ child.notes.count }} 笔记</span>
+                                                    </div>
+                                                    <div>
+                                                        <a href="{% url 'notes:tag_detail' child.id %}" class="btn btn-sm btn-outline-secondary">查看</a>
+                                                        <a href="{% url 'notes:edit_tag' child.id %}" class="btn btn-sm btn-outline-primary">编辑</a>
+                                                        <a href="{% url 'notes:delete_tag' child.id %}" class="btn btn-sm btn-outline-danger">删除</a>
+                                                    </div>
+                                                </div>
+                                                
+                                                {% if child.children.all %}
+                                                    <div class="ms-4 mt-2">
+                                                        {% for grandchild in child.children.all %}
+                                                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                                                <div>
+                                                                    <span class="badge tag-badge" style="background-color: {{ grandchild.color }}">{{ grandchild.name }}</span>
+                                                                    <span class="text-muted ms-2">{{ grandchild.notes.count }} 笔记</span>
+                                                                </div>
+                                                                <div>
+                                                                    <a href="{% url 'notes:tag_detail' grandchild.id %}" class="btn btn-sm btn-outline-secondary">查看</a>
+                                                                    <a href="{% url 'notes:edit_tag' grandchild.id %}" class="btn btn-sm btn-outline-primary">编辑</a>
+                                                                    <a href="{% url 'notes:delete_tag' grandchild.id %}" class="btn btn-sm btn-outline-danger">删除</a>
+                                                                </div>
+                                                            </div>
+                                                        {% endfor %}
+                                                    </div>
+                                                {% endif %}
+                                            </div>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        {% else %}
+            <div class="alert alert-info">
+                还没有创建任何标签。点击"添加标签"按钮开始创建。
+            </div>
+        {% endif %}
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">使用标签的技巧</h5>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item">使用多级标签可以更好地组织内容</li>
+                    <li class="list-group-item">标签名称应简洁明了</li>
+                    <li class="list-group-item">不同类别的标签可以使用不同颜色</li>
+                    <li class="list-group-item">对于经常使用的标签，可以创建快捷方式</li>
+                    <li class="list-group-item">定期整理和合并相似的标签</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

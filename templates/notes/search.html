@@ -1,0 +1,139 @@
+{% extends 'base.html' %}
+
+{% block title %}搜索 - Flomo2{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">高级搜索</h5>
+                <form method="get" action="{% url 'notes:search' %}">
+                    <div class="mb-3">
+                        <label for="{{ form.query.id_for_label }}" class="form-label">关键词</label>
+                        {{ form.query }}
+                    </div>
+                    <div class="mb-3">
+                        <label for="{{ form.tags.id_for_label }}" class="form-label">标签</label>
+                        {{ form.tags }}
+                        <div class="form-text">可以选择多个标签</div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="{{ form.date_from.id_for_label }}" class="form-label">开始日期</label>
+                        {{ form.date_from }}
+                    </div>
+                    <div class="mb-3">
+                        <label for="{{ form.date_to.id_for_label }}" class="form-label">结束日期</label>
+                        {{ form.date_to }}
+                    </div>
+                    <div class="mb-3 form-check">
+                        {{ form.is_favorited }}
+                        <label class="form-check-label" for="{{ form.is_favorited.id_for_label }}">
+                            仅显示收藏
+                        </label>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">搜索</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-8">
+        <h4 class="mb-3">搜索结果</h4>
+        
+        {% if notes %}
+            <div class="mb-2">
+                <small class="text-muted">找到 {{ notes|length }} 条结果</small>
+            </div>
+            
+            {% for note in notes %}
+                <div class="card note-card mb-3">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div class="note-content">
+                                <p class="card-text">{{ note.content|linebreaks }}</p>
+                                <div class="mt-2">
+                                    {% for tag in note.tags.all %}
+                                        <span class="badge tag-badge" style="background-color: {{ tag.color }}">{{ tag }}</span>
+                                    {% endfor %}
+                                </div>
+                                <small class="note-timestamp">{{ note.created_at|date:"Y-m-d H:i" }}</small>
+                            </div>
+                            <div class="ms-2">
+                                <a href="{% url 'notes:toggle_favorite' note.id %}" class="favorite-toggle" data-note-id="{{ note.id }}">
+                                    <i class="bi bi-star{% if note.is_favorited %}-fill{% endif %} favorite-icon"></i>
+                                </a>
+                            </div>
+                        </div>
+                        
+                        {% if note.attachments.all %}
+                            <div class="attachments mt-2">
+                                <small class="text-muted">附件:</small>
+                                <ul class="list-unstyled ms-2 mb-0">
+                                    {% for attachment in note.attachments.all %}
+                                        <li><a href="{{ attachment.file.url }}" target="_blank">{{ attachment.filename }}</a></li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        {% endif %}
+                        
+                        <div class="mt-3 text-end">
+                            <a href="{% url 'notes:note_detail' note.id %}" class="btn btn-sm btn-outline-secondary">查看</a>
+                            <a href="{% url 'notes:edit_note' note.id %}" class="btn btn-sm btn-outline-primary">编辑</a>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            {% if request.GET %}
+                <div class="alert alert-info">
+                    没有找到匹配的结果。尝试使用不同的搜索条件。
+                </div>
+            {% else %}
+                <div class="alert alert-info">
+                    使用左侧的搜索选项来查找笔记。
+                </div>
+            {% endif %}
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // 收藏切换功能
+    document.addEventListener('DOMContentLoaded', function() {
+        const favoriteToggles = document.querySelectorAll('.favorite-toggle');
+        
+        favoriteToggles.forEach(toggle => {
+            toggle.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                const noteId = this.dataset.noteId;
+                const icon = this.querySelector('i');
+                
+                fetch(this.href, {
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        if (data.is_favorited) {
+                            icon.classList.remove('bi-star');
+                            icon.classList.add('bi-star-fill');
+                        } else {
+                            icon.classList.remove('bi-star-fill');
+                            icon.classList.add('bi-star');
+                        }
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+            });
+        });
+    });
+</script>
+{% endblock %} 

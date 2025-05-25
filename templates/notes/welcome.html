@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+
+{% block title %}欢迎使用 Flomo2{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-6">
+            <h1 class="display-4 mb-4">记录你的想法</h1>
+            <p class="lead mb-4">像聊天一样无压力记录，让灵感不再溜走</p>
+            <div class="d-grid gap-2 d-md-flex">
+                <a href="{% url 'notes:register' %}" class="btn btn-primary btn-lg px-4">立即开始</a>
+                <a href="{% url 'notes:login' %}" class="btn btn-outline-primary btn-lg px-4">登录</a>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-4">
+                    <h5 class="card-title mb-3">主要功能</h5>
+                    <div class="feature-list">
+                        <div class="feature-item mb-3">
+                            <i class="bi bi-lightning-charge text-primary"></i>
+                            <span>快速记录 - 像聊天一样无压力记录</span>
+                        </div>
+                        <div class="feature-item mb-3">
+                            <i class="bi bi-tags text-primary"></i>
+                            <span>多级标签 - 灵活管理你的内容</span>
+                        </div>
+                        <div class="feature-item mb-3">
+                            <i class="bi bi-calendar-check text-primary"></i>
+                            <span>每日回顾 - 重温过去的想法</span>
+                        </div>
+                        <div class="feature-item">
+                            <i class="bi bi-search text-primary"></i>
+                            <span>快捷搜索 - 瞬间找到需要的内容</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    body {
+        background-color: #f8f9fa;
+    }
+    .feature-item {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+    .feature-item i {
+        font-size: 1.5rem;
+    }
+    .btn-primary {
+        background-color: #3498db;
+        border-color: #3498db;
+    }
+    .btn-primary:hover {
+        background-color: #2980b9;
+        border-color: #2980b9;
+    }
+    .btn-outline-primary {
+        color: #3498db;
+        border-color: #3498db;
+    }
+    .btn-outline-primary:hover {
+        background-color: #3498db;
+        border-color: #3498db;
+    }
+</style>
+{% endblock %} 

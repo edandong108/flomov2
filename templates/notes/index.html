@@ -1,0 +1,939 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+
+{% block title %}首页{% endblock %}
+
+{% block extra_css %}
+<!-- Quill.js CSS -->
+<link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+<style>
+    /* 侧边栏样式 */
+    .sidebar {
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 1rem;
+        height: calc(100vh - 100px);
+        display: flex;
+        flex-direction: column;
+    }
+
+    .sidebar > div {
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .sidebar-heading {
+        color: #1d1d1f;
+        font-size: 1rem;
+    }
+
+    /* 统计样式 */
+    .stats {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+        text-align: center;
+        background: var(--card-bg);
+        padding: 1.2rem;
+        border-radius: 12px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    }
+
+    .stat-item .number {
+        display: block;
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: var(--primary-color);
+        margin-bottom: 0.3rem;
+    }
+
+    .stat-item .label {
+        display: block;
+        font-size: 0.875rem;
+        color: #6c757d;
+    }
+
+    /* 热力图样式 */
+    .calendar-heatmap {
+        background: var(--card-bg);
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    }
+
+    .heatmap-grid {
+        display: grid;
+        grid-template-columns: repeat(13, 1fr);
+        gap: 3px;
+    }
+
+    .heatmap-column {
+        display: grid;
+        grid-template-rows: repeat(7, 1fr);
+        gap: 3px;
+    }
+
+    .heatmap-cell {
+        width: 10px;
+        height: 10px;
+        border-radius: 2px;
+        transition: transform 0.2s ease;
+    }
+
+    .heatmap-cell:hover {
+        transform: scale(1.2);
+    }
+
+    .legend-items {
+        display: flex;
+        gap: 3px;
+    }
+
+    .legend-item {
+        width: 10px;
+        height: 10px;
+        border-radius: 2px;
+    }
+
+    /* 标签列表样式 */
+    .tag-list {
+        flex: 1;
+        min-height: 0;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .tag-list::-webkit-scrollbar {
+        width: 4px;
+    }
+    
+    .tag-list::-webkit-scrollbar-track {
+        background: rgba(0, 0, 0, 0.05);
+    }
+    
+    .tag-list::-webkit-scrollbar-thumb {
+        background: rgba(0, 0, 0, 0.2);
+        border-radius: 2px;
+    }
+    
+    .tag-item {
+        position: relative;
+        padding-left: 1.5rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    .tag-toggle {
+        position: absolute;
+        left: 0;
+        top: 50%;
+        transform: translateY(-50%);
+        cursor: pointer;
+        width: 1.2rem;
+        height: 1.2rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #6c757d;
+    }
+    
+    .tag-toggle:hover {
+        color: var(--bs-primary);
+    }
+    
+    .tag-link {
+        display: block;
+        padding: 0.4rem 0.8rem;
+        color: #495057;
+        text-decoration: none;
+        font-size: 0.95rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        border-radius: 4px;
+        transition: all 0.2s ease;
+    }
+    
+    .tag-link:hover {
+        color: var(--bs-primary);
+        background-color: rgba(var(--bs-primary-rgb), 0.05);
+    }
+    
+    .tag-link.active {
+        color: var(--bs-primary);
+        font-weight: 500;
+        background-color: rgba(var(--bs-primary-rgb), 0.1);
+    }
+    
+    .tag-children {
+        margin-left: 1rem;
+        border-left: 1px dashed rgba(0, 0, 0, 0.1);
+        padding-left: 0.5rem;
+    }
+    
+    .tag-count {
+        font-size: 0.8rem;
+        color: #6c757d;
+        margin-left: 0.5rem;
+    }
+
+    /* 笔记卡片样式 */
+    .note-card {
+        transition: all 0.3s ease;
+    }
+
+    .note-content {
+        font-size: 1rem;
+        line-height: 1.6;
+        color: #1d1d1f;
+    }
+
+    .tag-badge {
+        display: inline-block;
+        padding: 0.3rem 0.8rem;
+        margin-right: 0.5rem;
+        border-radius: 20px;
+        font-size: 0.875rem;
+        text-decoration: none;
+        font-weight: 500;
+        transition: all 0.2s ease;
+    }
+
+    .tag-badge:hover {
+        transform: translateY(-1px);
+    }
+
+    .note-actions a {
+        color: #6c757d;
+        transition: all 0.2s ease;
+    }
+
+    .note-actions a:hover {
+        color: var(--primary-color);
+    }
+
+    /* 响应式调整 */
+    @media (max-width: 768px) {
+        .sidebar {
+            margin-bottom: 1rem;
+        }
+        .main-content {
+            padding: 0;
+        }
+    }
+
+    /* 星图导师样式 */
+    .mentor-advice {
+        font-size: 0.95rem;
+        line-height: 1.8;
+        color: #1d1d1f;
+        max-height: 300px;
+        min-height: 100px;
+        overflow-y: auto;
+        padding-right: 10px;
+    }
+
+    /* 自定义滚动条样式 */
+    .mentor-advice::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    .mentor-advice::-webkit-scrollbar-track {
+        background: rgba(0, 0, 0, 0.05);
+        border-radius: 3px;
+    }
+
+    .mentor-advice::-webkit-scrollbar-thumb {
+        background: rgba(0, 0, 0, 0.2);
+        border-radius: 3px;
+    }
+
+    .mentor-advice::-webkit-scrollbar-thumb:hover {
+        background: rgba(0, 0, 0, 0.3);
+    }
+
+    /* 富文本内容样式 */
+    .mentor-advice p {
+        margin-bottom: 1rem;
+        text-align: justify;
+    }
+
+    .mentor-advice h1, 
+    .mentor-advice h2, 
+    .mentor-advice h3, 
+    .mentor-advice h4, 
+    .mentor-advice h5, 
+    .mentor-advice h6 {
+        margin-top: 1.5rem;
+        margin-bottom: 1rem;
+        font-weight: 600;
+        color: #1a1a1a;
+    }
+
+    .mentor-advice ul, 
+    .mentor-advice ol {
+        margin-bottom: 1rem;
+        padding-left: 1.5rem;
+    }
+
+    .mentor-advice li {
+        margin-bottom: 0.5rem;
+    }
+
+    .mentor-advice blockquote {
+        border-left: 4px solid var(--primary-color);
+        padding-left: 1rem;
+        margin: 1rem 0;
+        color: #666;
+        font-style: italic;
+    }
+
+    .mentor-advice code {
+        background: rgba(0, 0, 0, 0.05);
+        padding: 0.2rem 0.4rem;
+        border-radius: 3px;
+        font-size: 0.9em;
+    }
+
+    .mentor-advice pre {
+        background: rgba(0, 0, 0, 0.05);
+        padding: 1rem;
+        border-radius: 5px;
+        overflow-x: auto;
+        margin: 1rem 0;
+    }
+
+    .mentor-advice a {
+        color: var(--primary-color);
+        text-decoration: none;
+    }
+
+    .mentor-advice a:hover {
+        text-decoration: underline;
+    }
+
+    .mentor-advice img {
+        max-width: 100%;
+        height: auto;
+        border-radius: 5px;
+        margin: 1rem 0;
+    }
+
+    .mentor-loading {
+        min-height: 120px;
+    }
+
+    #refreshMentorBtn {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.875rem;
+    }
+
+    #refreshMentorBtn i {
+        font-size: 1rem;
+    }
+
+    /* 思考动画 */
+    .thinking-dots {
+        display: flex;
+        justify-content: center;
+        gap: 6px;
+    }
+
+    .thinking-dots span {
+        width: 8px;
+        height: 8px;
+        background-color: var(--primary-color);
+        border-radius: 50%;
+        animation: thinking 1.4s infinite;
+    }
+
+    .thinking-dots span:nth-child(2) {
+        animation-delay: 0.2s;
+    }
+
+    .thinking-dots span:nth-child(3) {
+        animation-delay: 0.4s;
+    }
+
+    @keyframes thinking {
+        0%, 100% {
+            transform: translateY(0);
+            opacity: 0.4;
+        }
+        50% {
+            transform: translateY(-10px);
+            opacity: 1;
+        }
+    }
+
+    /* 标签树样式 */
+    .tag-tree {
+        max-height: 500px;
+        overflow-y: auto;
+    }
+    
+    .tag-tree::-webkit-scrollbar {
+        width: 4px;
+    }
+    
+    .tag-tree::-webkit-scrollbar-track {
+        background: rgba(0, 0, 0, 0.05);
+    }
+    
+    .tag-tree::-webkit-scrollbar-thumb {
+        background: rgba(0, 0, 0, 0.2);
+        border-radius: 2px;
+    }
+    
+    .tag-item {
+        position: relative;
+        padding-left: 1.5rem;
+    }
+    
+    .tag-toggle {
+        position: absolute;
+        left: 0;
+        top: 50%;
+        transform: translateY(-50%);
+        cursor: pointer;
+        width: 1.2rem;
+        height: 1.2rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #6c757d;
+    }
+    
+    .tag-toggle:hover {
+        color: var(--bs-primary);
+    }
+    
+    .tag-link {
+        display: block;
+        padding: 0.4rem 0;
+        color: #495057;
+        text-decoration: none;
+        font-size: 0.95rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    
+    .tag-link:hover {
+        color: var(--bs-primary);
+    }
+    
+    .tag-link.active {
+        color: var(--bs-primary);
+        font-weight: 500;
+    }
+    
+    .tag-children {
+        margin-left: 1rem;
+        border-left: 1px dashed rgba(0, 0, 0, 0.1);
+        padding-left: 0.5rem;
+    }
+    
+    .tag-count {
+        font-size: 0.8rem;
+        color: #6c757d;
+        margin-left: 0.5rem;
+    }
+
+    /* 编辑器容器样式 */
+    .editor-container {
+        background: white;
+        border-radius: 8px;
+        margin-bottom: 1rem;
+    }
+    
+    /* Quill 编辑器自定义样式 */
+    .ql-toolbar.ql-snow {
+        border-top-left-radius: 8px;
+        border-top-right-radius: 8px;
+        border-color: #e2e8f0;
+        background: #f8fafc;
+    }
+    
+    .ql-container.ql-snow {
+        border-bottom-left-radius: 8px;
+        border-bottom-right-radius: 8px;
+        border-color: #e2e8f0;
+        min-height: 120px;
+    }
+    
+    .ql-editor {
+        font-size: 1rem;
+        line-height: 1.6;
+    }
+    
+    .ql-editor.ql-blank::before {
+        color: #94a3b8;
+        font-style: normal;
+    }
+    
+    /* 标签输入样式 */
+    .tag-input-container {
+        margin-top: 1rem;
+    }
+    
+    .tag-input {
+        border: 1px solid #e2e8f0;
+        border-radius: 6px;
+        padding: 0.5rem;
+        width: 100%;
+        font-size: 0.875rem;
+    }
+
+    /* 统计信息容器样式 */
+    .stats-container {
+        margin-bottom: 1.5rem;
+        flex-shrink: 0;
+    }
+
+    /* 标签容器样式 */
+    .tags-container {
+        flex: 1;
+        min-height: 0;
+        display: flex;
+        flex-direction: column;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-4">
+    <div class="row g-4">
+        <!-- 左侧边栏 -->
+        <div class="col-md-3 col-lg-2 sidebar">
+            <div class="position-sticky" style="top: 75px;">
+                <!-- 统计信息 -->
+                <div class="stats-container fade-in">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h6 class="sidebar-heading fw-bold">统计</h6>
+                    </div>
+                    <div class="stats mb-3">
+                        <div class="stat-item">
+                            <span class="number">{{ total_notes }}</span>
+                            <span class="label">笔记</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="number">{{ tags.count }}</span>
+                            <span class="label">标签</span>
+                        </div>
+                    </div>
+                    <!-- 日历热力图 -->
+                    <div class="calendar-heatmap glass-effect p-3 rounded-3">
+                        <div class="calendar-header d-flex justify-content-between align-items-center mb-3">
+                            <small class="text-muted fw-medium">活跃度</small>
+                            <div class="heatmap-legend d-flex align-items-center">
+                                <small class="text-muted me-2">少</small>
+                                <div class="legend-items d-flex">
+                                    <div class="legend-item" style="background-color: #ebedf0;"></div>
+                                    <div class="legend-item" style="background-color: #9be1ff;"></div>
+                                    <div class="legend-item" style="background-color: #40a9ff;"></div>
+                                    <div class="legend-item" style="background-color: #1890ff;"></div>
+                                    <div class="legend-item" style="background-color: #0050b3;"></div>
+                                </div>
+                                <small class="text-muted ms-2">多</small>
+                            </div>
+                        </div>
+                        <div class="heatmap-grid">
+                            {% for week in calendar_data %}
+                            <div class="heatmap-column">
+                                {% for day in week %}
+                                <div class="heatmap-cell" 
+                                     style="background-color: {{ day.color }};"
+                                     data-bs-toggle="tooltip"
+                                     data-bs-placement="top"
+                                     title="{{ day.date|date:'Y-m-d' }}: {{ day.count }} 条笔记">
+                                </div>
+                                {% endfor %}
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 标签树 -->
+                <div class="tags-container fade-in" style="animation-delay: 0.1s;">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h6 class="sidebar-heading fw-bold">标签</h6>
+                        <a href="{% url 'notes:tag_list' %}" class="text-decoration-none text-primary">
+                            <i class="bi bi-plus-circle"></i>
+                        </a>
+                    </div>
+                    <div class="tag-list glass-effect p-3 rounded-3">
+                        {% include "notes/includes/tag_tree.html" with tags=tags %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 主要内容区 -->
+        <div class="col-md-6 col-lg-7 main-content">
+            <!-- 快速记录框 -->
+            <div class="quick-input-card mb-4 fade-in">
+                <form method="post" action="{% url 'notes:add_note' %}" enctype="multipart/form-data" id="noteForm">
+                    {% csrf_token %}
+                    <div class="card glass-effect">
+                        <div class="card-body">
+                            <!-- Quill 编辑器容器 -->
+                            <div class="editor-container">
+                                <div id="editor"></div>
+                                <input type="hidden" name="content" id="hiddenContent">
+                            </div>
+                            
+                            <!-- 标签输入 -->
+                            <div class="tag-input-container">
+                                <input type="text" class="tag-input" name="tag_input" placeholder="输入标签，用逗号分隔（例如：#工作, #想法/灵感）" />
+                            </div>
+                            
+                            <div class="d-flex justify-content-between align-items-center mt-3">
+                                <div class="btn-group">
+                                    <button type="button" class="btn btn-light glass-effect" id="addTag">
+                                        <i class="bi bi-tag"></i> 标签
+                                    </button>
+                                    <button type="button" class="btn btn-light glass-effect" id="addFile">
+                                        <i class="bi bi-paperclip"></i> 附件
+                                    </button>
+                                </div>
+                                <button type="submit" class="btn btn-primary">保存</button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <!-- 笔记列表 -->
+            <div class="notes-list">
+                {% for note in notes %}
+                <div class="note-card mb-3 fade-in" style="animation-delay: {% widthratio forloop.counter 10 1 %}00ms;">
+                    <div class="card glass-effect">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <div class="note-meta text-muted small">
+                                    {{ note.created_at|date:"Y-m-d H:i" }}
+                                </div>
+                                <div class="note-actions">
+                                    <a href="{% url 'notes:edit_note' note.id %}" class="btn btn-link btn-sm text-muted p-0 me-2">
+                                        <i class="bi bi-pencil"></i>
+                                    </a>
+                                    <a href="{% url 'notes:delete_note' note.id %}" class="btn btn-link btn-sm text-danger p-0">
+                                        <i class="bi bi-trash"></i>
+                                    </a>
+                                </div>
+                            </div>
+                            
+                            <div class="note-content">{{ note.content|safe }}</div>
+                            
+                            {% if note.tags.exists %}
+                            <div class="note-tags mt-3">
+                                {% for tag in note.tags.all %}
+                                <a href="{% url 'notes:tag_detail' tag.id %}" class="tag-badge" style="background-color: {{ tag.color }}20; color: {{ tag.color }};">
+                                    {{ tag.name }}
+                                </a>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="text-center text-muted mt-5 fade-in">
+                    <i class="bi bi-journal-text display-1"></i>
+                    <p class="mt-3">还没有任何笔记，开始记录吧！</p>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- 分页导航 -->
+            {% if notes.paginator.num_pages > 1 %}
+            <nav aria-label="笔记分页" class="mt-4">
+                <ul class="pagination justify-content-center">
+                    {% if notes.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ notes.previous_page_number }}" aria-label="上一页">
+                            <span aria-hidden="true">&laquo;</span>
+                        </a>
+                    </li>
+                    {% else %}
+                    <li class="page-item disabled">
+                        <span class="page-link" aria-hidden="true">&laquo;</span>
+                    </li>
+                    {% endif %}
+
+                    {% for num in notes.paginator.page_range %}
+                    {% if num == notes.number %}
+                    <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                    {% elif num > notes.number|add:'-3' and num < notes.number|add:'3' %}
+                    <li class="page-item"><a class="page-link" href="?page={{ num }}">{{ num }}</a></li>
+                    {% endif %}
+                    {% endfor %}
+
+                    {% if notes.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ notes.next_page_number }}" aria-label="下一页">
+                            <span aria-hidden="true">&raquo;</span>
+                        </a>
+                    </li>
+                    {% else %}
+                    <li class="page-item disabled">
+                        <span class="page-link" aria-hidden="true">&raquo;</span>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+            {% endif %}
+        </div>
+
+        <!-- 右侧边栏 -->
+        <div class="col-md-3 col-lg-3 right-sidebar">
+            <div class="position-sticky" style="top: 75px;">
+                <!-- 用户信息和导入 -->
+                <div class="card glass-effect mb-4 fade-in">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <div>
+                                <h6 class="card-title fw-bold mb-1">{{ user.username }}</h6>
+                                <small class="text-muted">{{ user.email }}</small>
+                            </div>
+                            <div class="btn-group">
+                                <a href="{% url 'notes:import_flomo' %}" class="btn btn-sm btn-outline-primary" title="导入Flomo">
+                                    <i class="bi bi-cloud-upload"></i>
+                                </a>
+                                <a href="{% url 'notes:profile' %}" class="btn btn-sm btn-outline-primary" title="个人资料">
+                                    <i class="bi bi-person"></i>
+                                </a>
+                                <a href="{% url 'notes:logout' %}" class="btn btn-sm btn-outline-danger" title="退出登录">
+                                    <i class="bi bi-box-arrow-right"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 星图导师 -->
+                <div class="card glass-effect mb-4 fade-in" style="animation-delay: 0.1s;">
+                    <div class="card-body">
+                        {% csrf_token %}
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h6 class="card-title fw-bold mb-0">
+                                <i class="bi bi-stars text-warning"></i> 星图导师
+                            </h6>
+                            <div class="d-flex align-items-center">
+                                <select id="mentorSelect" class="form-select form-select-sm me-2" style="width: 120px;">
+                                    <option value="zeng">曾国藩</option>
+                                    <option value="munger">查理·芒格</option>
+                                </select>
+                                <button class="btn btn-sm btn-outline-primary" id="refreshMentorBtn">
+                                    <i class="bi bi-arrow-clockwise"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div id="mentorAdviceContainer">
+                            <div class="mentor-advice"></div>
+                            <div class="mentor-loading d-none">
+                                <div class="text-center py-3">
+                                    <div class="thinking-dots mb-2">
+                                        <span></span>
+                                        <span></span>
+                                        <span></span>
+                                    </div>
+                                    <p class="mb-1 text-primary"><span id="mentorName">曾国藩</span>正在思考</p>
+                                    <p class="countdown text-muted small">预计等待时间：<span id="countdown">10</span>秒</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 今日回顾 -->
+                <div class="card glass-effect mb-4 fade-in" style="animation-delay: 0.2s;">
+                    <div class="card-body">
+                        <h6 class="card-title fw-bold">今日回顾</h6>
+                        <p class="card-text small text-muted">重温过去的想法，加深记忆与理解</p>
+                        <a href="{% url 'notes:daily_review' %}" class="btn btn-outline-primary btn-sm w-100">查看回顾</a>
+                    </div>
+                </div>
+
+                <!-- 随机漫步 -->
+                <div class="card glass-effect fade-in" style="animation-delay: 0.3s;">
+                    <div class="card-body">
+                        <h6 class="card-title fw-bold">随机漫步</h6>
+                        <p class="card-text small text-muted">随机浏览以前的笔记，发现新的联系</p>
+                        <a href="{% url 'notes:random_review' %}" class="btn btn-outline-primary btn-sm w-100">开始漫步</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<!-- Quill.js JavaScript -->
+<script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // 初始化 Quill 编辑器
+    var quill = new Quill('#editor', {
+        theme: 'snow',
+        placeholder: '记录你的想法...',
+        modules: {
+            toolbar: [
+                ['bold', 'italic', 'underline', 'strike'],
+                [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                ['link', 'image'],
+                ['clean']
+            ]
+        }
+    });
+    
+    // 表单提交前将编辑器内容保存到隐藏输入框
+    document.getElementById('noteForm').addEventListener('submit', function() {
+        var content = quill.root.innerHTML;
+        document.getElementById('hiddenContent').value = content;
+    });
+    
+    // 标签输入处理
+    const tagInput = document.querySelector('.tag-input');
+    if (tagInput) {
+        tagInput.addEventListener('keydown', function(e) {
+            if (e.key === '#') {
+                e.preventDefault();
+                const pos = this.selectionStart;
+                const value = this.value;
+                this.value = value.slice(0, pos) + '#' + value.slice(pos);
+                this.setSelectionRange(pos + 1, pos + 1);
+            }
+        });
+    }
+    
+    // 添加标签按钮
+    document.getElementById('addTag').addEventListener('click', function() {
+        const tagInput = document.querySelector('.tag-input');
+        if (tagInput) {
+            const pos = tagInput.selectionStart;
+            const value = tagInput.value;
+            tagInput.value = value.slice(0, pos) + '#' + value.slice(pos);
+            tagInput.focus();
+            tagInput.setSelectionRange(pos + 1, pos + 1);
+        }
+    });
+
+    const mentorSelect = document.getElementById('mentorSelect');
+    const mentorName = document.getElementById('mentorName');
+    const mentorAdviceContainer = document.getElementById('mentorAdviceContainer');
+    const mentorAdvice = mentorAdviceContainer.querySelector('.mentor-advice');
+    const mentorLoading = mentorAdviceContainer.querySelector('.mentor-loading');
+    const refreshMentorBtn = document.getElementById('refreshMentorBtn');
+    const countdownElement = document.getElementById('countdown');
+    let countdownInterval;
+
+    function showLoading() {
+        mentorAdvice.style.display = 'none';
+        mentorLoading.classList.remove('d-none');
+        startCountdown();
+    }
+
+    function hideLoading() {
+        mentorLoading.classList.add('d-none');
+        mentorAdvice.style.display = 'block';
+        stopCountdown();
+    }
+
+    function startCountdown() {
+        let count = 10;
+        countdownElement.textContent = count;
+        countdownInterval = setInterval(() => {
+            count--;
+            countdownElement.textContent = count;
+            if (count <= 0) {
+                stopCountdown();
+            }
+        }, 1000);
+    }
+
+    function stopCountdown() {
+        if (countdownInterval) {
+            clearInterval(countdownInterval);
+        }
+    }
+
+    function getMentorAdvice(forceRefresh = false) {
+        const mentorType = mentorSelect.value;
+        mentorName.textContent = mentorSelect.options[mentorSelect.selectedIndex].text;
+        showLoading();
+
+        fetch(`{% url 'notes:get_mentor_insights' %}?mentor_type=${mentorType}&force_refresh=${forceRefresh}`, {
+            method: 'GET',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                mentorAdvice.innerHTML = data.mentor_advice.replace(/\n/g, '<br>');
+            } else {
+                mentorAdvice.innerHTML = '<p class="text-danger">获取建议失败，请稍后重试</p>';
+            }
+        })
+        .catch(error => {
+            console.error('获取建议失败:', error);
+            mentorAdvice.innerHTML = '<p class="text-danger">网络错误，请稍后重试</p>';
+        })
+        .finally(() => {
+            hideLoading();
+        });
+    }
+
+    // 页面加载时获取建议
+    getMentorAdvice();
+
+    // 刷新按钮点击事件
+    refreshMentorBtn.addEventListener('click', () => getMentorAdvice(true));
+
+    // 导师切换事件
+    mentorSelect.addEventListener('change', () => getMentorAdvice());
+
+    // 标签树展开/折叠功能
+    document.querySelectorAll('.tag-toggle').forEach(toggle => {
+        toggle.addEventListener('click', function(e) {
+            e.preventDefault();
+            const tagItem = this.closest('.tag-item');
+            const children = tagItem.querySelector('.tag-children');
+            const icon = this.querySelector('i');
+            
+            if (children) {
+                children.classList.toggle('d-none');
+                icon.classList.toggle('bi-chevron-right');
+                icon.classList.toggle('bi-chevron-down');
+                
+                // 保存状态到 localStorage
+                const tagId = tagItem.dataset.tagId;
+                const isExpanded = !children.classList.contains('d-none');
+                localStorage.setItem(`tag_${tagId}_expanded`, isExpanded);
+            }
+        });
+    });
+    
+    // 恢复标签树展开状态
+    document.querySelectorAll('.tag-item').forEach(item => {
+        const tagId = item.dataset.tagId;
+        const children = item.querySelector('.tag-children');
+        const toggle = item.querySelector('.tag-toggle i');
+        
+        if (children && toggle) {
+            const isExpanded = localStorage.getItem(`tag_${tagId}_expanded`) === 'true';
+            if (isExpanded) {
+                children.classList.remove('d-none');
+                toggle.classList.remove('bi-chevron-right');
+                toggle.classList.add('bi-chevron-down');
+            }
+        }
+    });
+});
+</script>
+{% endblock %} 

@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+
+{% block title %}添加标签{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-4">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card glass-effect">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h4 class="card-title mb-0">添加标签</h4>
+                        <a href="{% url 'notes:tag_list' %}" class="btn btn-outline-primary btn-sm">
+                            <i class="bi bi-arrow-left"></i> 返回
+                        </a>
+                    </div>
+
+                    <form method="post" class="fade-in">
+                        {% csrf_token %}
+                        {{ form|crispy }}
+
+                        <div class="color-preview mb-3">
+                            <label class="form-label">颜色预览</label>
+                            <div class="d-flex align-items-center gap-3">
+                                <div id="colorPreview" class="rounded-3 p-3" style="background-color: {{ form.initial.color|default:'#3498db' }};">
+                                    <span class="text-white">标签预览</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-plus-lg"></i> 创建标签
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .color-preview {
+        transition: all 0.3s ease;
+    }
+
+    #colorPreview {
+        min-width: 120px;
+        text-align: center;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    /* 自定义颜色选择器样式 */
+    input[type="color"] {
+        -webkit-appearance: none;
+        border: none;
+        width: 50px;
+        height: 50px;
+        border-radius: 8px;
+        cursor: pointer;
+    }
+
+    input[type="color"]::-webkit-color-swatch-wrapper {
+        padding: 0;
+        border-radius: 8px;
+    }
+
+    input[type="color"]::-webkit-color-swatch {
+        border: none;
+        border-radius: 8px;
+    }
+
+    /* 表单样式优化 */
+    .form-control, .form-select {
+        background: var(--card-bg);
+        border: 1px solid rgba(0, 0, 0, 0.1);
+        border-radius: 8px;
+        padding: 0.75rem 1rem;
+        transition: all 0.3s ease;
+    }
+
+    .form-control:focus, .form-select:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.1);
+    }
+
+    .form-label {
+        font-weight: 500;
+        color: #1d1d1f;
+        margin-bottom: 0.5rem;
+    }
+
+    .help-text {
+        font-size: 0.875rem;
+        color: #6c757d;
+        margin-top: 0.25rem;
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // 颜色选择器实时预览
+    const colorInput = document.querySelector('input[type="color"]');
+    const colorPreview = document.getElementById('colorPreview');
+    
+    if (colorInput && colorPreview) {
+        colorInput.addEventListener('input', function(e) {
+            colorPreview.style.backgroundColor = e.target.value;
+        });
+    }
+});
+</script>
+{% endblock %} 

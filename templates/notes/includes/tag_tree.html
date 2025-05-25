@@ -1,0 +1,20 @@
+{% for tag in tags %}
+<div class="tag-item" data-tag-id="{{ tag.id }}">
+    {% if tag.children.exists %}
+    <span class="tag-toggle">
+        <i class="bi bi-chevron-right"></i>
+    </span>
+    {% endif %}
+    
+    <a href="{% url 'notes:tag_detail' tag.id %}" class="tag-link {% if tag.id == current_tag.id %}active{% endif %}">
+        {{ tag.name }}
+        <span class="tag-count">({{ tag.notes.count }})</span>
+    </a>
+    
+    {% if tag.children.exists %}
+    <div class="tag-children d-none">
+        {% include "notes/includes/tag_tree.html" with tags=tag.children.all %}
+    </div>
+    {% endif %}
+</div>
+{% endfor %} 

@@ -1,0 +1,108 @@
+{% extends 'base.html' %}
+
+{% block title %}随机回顾 - Flomo2{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <div class="mb-4">
+            <h4>随机回顾</h4>
+            <p class="text-muted">随机回顾过去的记录，让灵感在不经意间迸发。</p>
+        </div>
+        
+        {% if notes %}
+            <div class="review-section mb-4">
+                <h5 class="mb-3">随机精选</h5>
+                {% for note in notes %}
+                    <div class="card note-card mb-3">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div class="note-content">
+                                    <p class="card-text">{{ note.content|linebreaks }}</p>
+                                    <div class="mt-2">
+                                        {% for tag in note.tags.all %}
+                                            <span class="badge tag-badge" style="background-color: {{ tag.color }}">{{ tag }}</span>
+                                        {% endfor %}
+                                    </div>
+                                    <small class="note-timestamp">{{ note.created_at|date:"Y-m-d H:i" }}</small>
+                                </div>
+                                <div class="ms-2">
+                                    <a href="{% url 'notes:toggle_favorite' note.id %}" class="favorite-toggle" data-note-id="{{ note.id }}">
+                                        <i class="bi bi-star{% if note.is_favorited %}-fill{% endif %} favorite-icon"></i>
+                                    </a>
+                                </div>
+                            </div>
+                            
+                            {% if note.attachments.all %}
+                                <div class="attachments mt-2">
+                                    <small class="text-muted">附件:</small>
+                                    <ul class="list-unstyled ms-2 mb-0">
+                                        {% for attachment in note.attachments.all %}
+                                            <li><a href="{{ attachment.file.url }}" target="_blank">{{ attachment.filename }}</a></li>
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                            {% endif %}
+                            
+                            <div class="mt-3 text-end">
+                                <a href="{% url 'notes:note_detail' note.id %}" class="btn btn-sm btn-outline-secondary">查看</a>
+                                <a href="{% url 'notes:edit_note' note.id %}" class="btn btn-sm btn-outline-primary">编辑</a>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="alert alert-info">
+                <p>还没有笔记可以回顾。先添加一些笔记吧！</p>
+            </div>
+        {% endif %}
+        
+        <div class="text-center mt-4">
+            <form method="get" action="{% url 'notes:random_review' %}">
+                <button type="submit" class="btn btn-primary">再来一组</button>
+            </form>
+            <a href="{% url 'notes:daily_review' %}" class="btn btn-outline-primary mt-2">查看每日回顾</a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // 收藏切换功能
+    document.addEventListener('DOMContentLoaded', function() {
+        const favoriteToggles = document.querySelectorAll('.favorite-toggle');
+        
+        favoriteToggles.forEach(toggle => {
+            toggle.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                const noteId = this.dataset.noteId;
+                const icon = this.querySelector('i');
+                
+                fetch(this.href, {
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        if (data.is_favorited) {
+                            icon.classList.remove('bi-star');
+                            icon.classList.add('bi-star-fill');
+                        } else {
+                            icon.classList.remove('bi-star-fill');
+                            icon.classList.add('bi-star');
+                        }
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+            });
+        });
+    });
+</script>
+{% endblock %} 

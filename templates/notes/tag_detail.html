@@ -1,0 +1,213 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+
+{% block title %}{{ tag.name }} - 标签{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-4">
+    <div class="row g-4">
+        <!-- 左侧边栏 -->
+        <div class="col-md-3 col-lg-2 sidebar glass-effect">
+            <div class="position-sticky" style="top: 75px;">
+                <div class="mb-4 fade-in">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h6 class="sidebar-heading fw-bold">标签信息</h6>
+                        <div>
+                            <a href="{% url 'notes:edit_tag' tag.id %}" class="text-decoration-none text-primary me-2">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                            <a href="{% url 'notes:delete_tag' tag.id %}" class="text-decoration-none text-danger">
+                                <i class="bi bi-trash"></i>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="tag-info glass-effect p-3 rounded-3">
+                        <div class="d-flex align-items-center mb-3">
+                            <span class="color-dot" style="background-color: {{ tag.color }}; width: 16px; height: 16px;"></span>
+                            <h5 class="mb-0 ms-2">{{ tag.name }}</h5>
+                        </div>
+                        {% if tag.parent %}
+                        <div class="text-muted small mb-2">
+                            <i class="bi bi-diagram-2"></i> 父标签：{{ tag.parent.name }}
+                        </div>
+                        {% endif %}
+                        <div class="text-muted small">
+                            <i class="bi bi-calendar3"></i> 创建于：{{ tag.created_at|date:"Y-m-d" }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-4 fade-in" style="animation-delay: 0.1s;">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h6 class="sidebar-heading fw-bold">子标签</h6>
+                        <a href="{% url 'notes:add_tag' %}" class="text-decoration-none text-primary">
+                            <i class="bi bi-plus-circle"></i>
+                        </a>
+                    </div>
+                    <div class="tag-list glass-effect p-3 rounded-3">
+                        {% for child in tag.children.all %}
+                        <a href="{% url 'notes:tag_detail' child.id %}" class="tag-item">
+                            <span class="color-dot" style="background-color: {{ child.color }};"></span>
+                            <span class="tag-name">{{ child.name }}</span>
+                            <span class="tag-count">{{ child.notes.count }}</span>
+                        </a>
+                        {% empty %}
+                        <div class="text-muted small text-center py-2">
+                            暂无子标签
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 主内容区 -->
+        <div class="col-md-9 col-lg-10 main-content">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h4 class="mb-0">标签下的笔记</h4>
+                <div class="btn-group">
+                    <a href="{% url 'notes:index' %}" class="btn btn-outline-primary">
+                        <i class="bi bi-plus-lg"></i> 新建笔记
+                    </a>
+                </div>
+            </div>
+
+            <!-- 笔记列表 -->
+            <div class="notes-list">
+                {% for note in notes %}
+                <div class="note-card mb-3 fade-in" style="animation-delay: {% widthratio forloop.counter 10 1 %}00ms;">
+                    <div class="card glass-effect">
+                        <div class="card-body">
+                            <div class="note-content">{{ note.content|safe }}</div>
+                            {% if note.tags.exists %}
+                            <div class="note-tags mt-3">
+                                {% for tag in note.tags.all %}
+                                <a href="{% url 'notes:tag_detail' tag.id %}" class="tag-badge" style="background-color: {{ tag.color }}20; color: {{ tag.color }};">
+                                    {{ tag.name }}
+                                </a>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                            <div class="note-footer mt-3 d-flex justify-content-between align-items-center">
+                                <small class="text-muted">{{ note.created_at|date:"Y-m-d H:i" }}</small>
+                                <div class="note-actions">
+                                    <a href="{% url 'notes:toggle_favorite' note.id %}" class="text-decoration-none me-2">
+                                        <i class="bi {% if note.is_favorited %}bi-star-fill text-warning{% else %}bi-star{% endif %}"></i>
+                                    </a>
+                                    <a href="{% url 'notes:edit_note' note.id %}" class="text-decoration-none me-2">
+                                        <i class="bi bi-pencil"></i>
+                                    </a>
+                                    <a href="{% url 'notes:delete_note' note.id %}" class="text-decoration-none text-danger">
+                                        <i class="bi bi-trash"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="text-center text-muted mt-5 fade-in">
+                    <i class="bi bi-journal-text display-1"></i>
+                    <p class="mt-3">该标签下还没有任何笔记</p>
+                    <a href="{% url 'notes:index' %}" class="btn btn-primary mt-2">
+                        <i class="bi bi-plus-lg"></i> 新建笔记
+                    </a>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* 标签信息样式 */
+    .tag-info {
+        background: var(--card-bg);
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    }
+
+    /* 标签列表样式 */
+    .tag-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        max-height: 300px;
+        overflow-y: auto;
+    }
+
+    .tag-item {
+        display: flex;
+        align-items: center;
+        padding: 0.5rem;
+        text-decoration: none;
+        color: #1d1d1f;
+        border-radius: 8px;
+        transition: all 0.2s ease;
+    }
+
+    .tag-item:hover {
+        background-color: rgba(0, 0, 0, 0.05);
+        color: var(--primary-color);
+    }
+
+    .color-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        margin-right: 0.8rem;
+    }
+
+    .tag-count {
+        margin-left: auto;
+        font-size: 0.875rem;
+        color: #6c757d;
+        font-weight: 500;
+    }
+
+    /* 笔记卡片样式 */
+    .note-card {
+        transition: all 0.3s ease;
+    }
+
+    .note-content {
+        font-size: 1rem;
+        line-height: 1.6;
+        color: #1d1d1f;
+    }
+
+    .tag-badge {
+        display: inline-block;
+        padding: 0.3rem 0.8rem;
+        margin-right: 0.5rem;
+        border-radius: 20px;
+        font-size: 0.875rem;
+        text-decoration: none;
+        font-weight: 500;
+        transition: all 0.2s ease;
+    }
+
+    .tag-badge:hover {
+        transform: translateY(-1px);
+    }
+
+    .note-actions a {
+        color: #6c757d;
+        transition: all 0.2s ease;
+    }
+
+    .note-actions a:hover {
+        color: var(--primary-color);
+    }
+
+    @media (max-width: 768px) {
+        .sidebar {
+            margin-bottom: 1rem;
+        }
+        .main-content {
+            padding: 0;
+        }
+    }
+</style>
+{% endblock %} 

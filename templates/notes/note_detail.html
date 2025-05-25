@@ -1,0 +1,134 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+
+{% block title %}笔记详情{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card glass-effect">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-4">
+                        <div>
+                            <h4 class="card-title">笔记详情</h4>
+                            <div class="text-muted small">
+                                <i class="bi bi-clock"></i> {{ note.created_at|date:"Y-m-d H:i" }}
+                                {% if note.created_at != note.updated_at %}
+                                <span class="ms-2">
+                                    <i class="bi bi-pencil"></i> {{ note.updated_at|date:"Y-m-d H:i" }}
+                                </span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div>
+                            <form method="post" action="{% url 'notes:toggle_favorite' note.id %}" class="d-inline">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-link text-warning p-0 me-2">
+                                    <i class="bi {% if note.is_favorited %}bi-star-fill{% else %}bi-star{% endif %} fs-5"></i>
+                                </button>
+                            </form>
+                            <div class="btn-group">
+                                <a href="{% url 'notes:edit_note' note.id %}" class="btn btn-outline-primary btn-sm">
+                                    <i class="bi bi-pencil"></i> 编辑
+                                </a>
+                                <a href="{% url 'notes:delete_note' note.id %}" class="btn btn-outline-danger btn-sm">
+                                    <i class="bi bi-trash"></i> 删除
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    {% if messages %}
+                    <div class="messages mb-4">
+                        {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }}">
+                            {{ message }}
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+
+                    <div class="note-content mb-4">
+                        {{ note.content|linebreaks }}
+                    </div>
+
+                    {% if note.tags.exists %}
+                    <div class="tags mb-4">
+                        <h6 class="text-muted mb-2">标签</h6>
+                        {% for tag in note.tags.all %}
+                        <a href="{% url 'notes:tag_detail' tag.id %}" class="badge bg-primary bg-opacity-10 text-primary text-decoration-none me-1">
+                            {{ tag.name }}
+                        </a>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+
+                    {% if note.attachments.exists %}
+                    <div class="attachments">
+                        <h6 class="text-muted mb-2">附件</h6>
+                        <div class="list-group">
+                            {% for attachment in note.attachments.all %}
+                            <div class="list-group-item d-flex justify-content-between align-items-center">
+                                <div>
+                                    <i class="bi bi-paperclip"></i>
+                                    {{ attachment.filename }}
+                                </div>
+                                <div>
+                                    <a href="{{ attachment.file.url }}" class="btn btn-sm btn-outline-primary me-2" download>
+                                        <i class="bi bi-download"></i>
+                                    </a>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="text-center mt-4">
+                <a href="{% url 'notes:index' %}" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left"></i> 返回列表
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .glass-effect {
+        background: rgba(255, 255, 255, 0.9);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    }
+    
+    .note-content {
+        font-size: 1.1rem;
+        line-height: 1.8;
+        color: #2c3e50;
+    }
+    
+    .badge {
+        font-weight: normal;
+        padding: 0.5em 0.8em;
+    }
+    
+    .list-group-item {
+        background: rgba(255, 255, 255, 0.5);
+        border: 1px solid rgba(0, 0, 0, 0.125);
+    }
+    
+    .btn-link {
+        text-decoration: none;
+    }
+    
+    .btn-link:hover {
+        text-decoration: none;
+        opacity: 0.8;
+    }
+</style>
+{% endblock %} 
