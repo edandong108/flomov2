@@ -3,45 +3,81 @@
 {% block title %}欢迎使用 Flomo2{% endblock %}
 
 {% block content %}
-<div class="container mt-5">
-    <div class="row">
-        <div class="col-md-6">
-            <h1 class="display-4 mb-4">记录你的想法</h1>
-            <p class="lead mb-4">像聊天一样无压力记录，让灵感不再溜走</p>
-            <div class="d-grid gap-2 d-md-flex">
-                <a href="{% url 'notes:register' %}" class="btn btn-primary btn-lg px-4">立即开始</a>
-                <a href="{% url 'notes:login' %}" class="btn btn-outline-primary btn-lg px-4">登录</a>
+<div class="welcome-hero">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-md-6">
+                <div class="hero-content" data-aos="fade-right" data-aos-duration="1000">
+                    <h1 class="display-4 fw-bold mb-4 text-gradient">记录你的想法</h1>
+                    <p class="lead mb-4">像聊天一样无压力记录，让灵感不再溜走</p>
+                    <div class="d-grid gap-2 d-md-flex">
+                        <a href="{% url 'notes:register' %}" class="btn btn-primary btn-lg px-4 me-md-2 pulse-btn">立即开始</a>
+                        <a href="{% url 'notes:login' %}" class="btn btn-outline-primary btn-lg px-4">登录</a>
+                    </div>
+                </div>
             </div>
-        </div>
-        <div class="col-md-6">
-            <div class="card border-0 shadow-sm">
-                <div class="card-body p-4">
-                    <h5 class="card-title mb-3">主要功能</h5>
-                    <div class="feature-list">
-                        <div class="feature-item mb-3">
-                            <i class="bi bi-lightning-charge text-primary"></i>
-                            <span>快速记录 - 像聊天一样无压力记录</span>
-                        </div>
-                        <div class="feature-item mb-3">
-                            <i class="bi bi-tags text-primary"></i>
-                            <span>多级标签 - 灵活管理你的内容</span>
-                        </div>
-                        <div class="feature-item mb-3">
-                            <i class="bi bi-calendar-check text-primary"></i>
-                            <span>每日回顾 - 重温过去的想法</span>
-                        </div>
-                        <div class="feature-item mb-3">
-                            <i class="bi bi-search text-primary"></i>
-                            <span>快捷搜索 - 瞬间找到需要的内容</span>
-                        </div>
-                        <div class="feature-item">
-                            <i class="bi bi-stars text-primary"></i>
-                            <span>星图导师 - 通过DeepSeek大模型设定榜样指导</span>
+            <div class="col-md-6">
+                <div class="feature-card" data-aos="fade-up" data-aos-delay="200">
+                    <div class="card border-0 shadow-lg rounded-lg">
+                        <div class="card-body p-5">
+                            <h5 class="card-title mb-4 fw-bold"><span class="highlight">主要功能</span></h5>
+                            <div class="feature-list">
+                                <div class="feature-item mb-4 hover-effect">
+                                    <div class="feature-icon">
+                                        <i class="bi bi-lightning-charge"></i>
+                                    </div>
+                                    <div class="feature-text">
+                                        <h6 class="mb-1">快速记录</h6>
+                                        <p class="mb-0 text-muted">像聊天一样无压力记录</p>
+                                    </div>
+                                </div>
+                                <div class="feature-item mb-4 hover-effect">
+                                    <div class="feature-icon">
+                                        <i class="bi bi-tags"></i>
+                                    </div>
+                                    <div class="feature-text">
+                                        <h6 class="mb-1">多级标签</h6>
+                                        <p class="mb-0 text-muted">灵活管理你的内容</p>
+                                    </div>
+                                </div>
+                                <div class="feature-item mb-4 hover-effect">
+                                    <div class="feature-icon">
+                                        <i class="bi bi-calendar-check"></i>
+                                    </div>
+                                    <div class="feature-text">
+                                        <h6 class="mb-1">每日回顾</h6>
+                                        <p class="mb-0 text-muted">重温过去的想法</p>
+                                    </div>
+                                </div>
+                                <div class="feature-item mb-4 hover-effect">
+                                    <div class="feature-icon">
+                                        <i class="bi bi-search"></i>
+                                    </div>
+                                    <div class="feature-text">
+                                        <h6 class="mb-1">快捷搜索</h6>
+                                        <p class="mb-0 text-muted">瞬间找到需要的内容</p>
+                                    </div>
+                                </div>
+                                <div class="feature-item hover-effect">
+                                    <div class="feature-icon highlight-icon">
+                                        <i class="bi bi-stars"></i>
+                                    </div>
+                                    <div class="feature-text">
+                                        <h6 class="mb-1">星图导师</h6>
+                                        <p class="mb-0 text-muted">通过DeepSeek大模型设定榜样指导</p>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
+    </div>
+    <div class="shape-divider">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120" preserveAspectRatio="none">
+            <path d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V0H0V27.35A600.21,600.21,0,0,0,321.39,56.44Z" class="shape-fill"></path>
+        </svg>
     </div>
 </div>
 {% endblock %}
@@ -50,30 +86,193 @@
 <style>
     body {
         background-color: #f8f9fa;
+        overflow-x: hidden;
     }
+    
+    .welcome-hero {
+        position: relative;
+        padding: 100px 0 150px;
+        background: linear-gradient(135deg, #f6f9fc 0%, #eef5ff 100%);
+        overflow: hidden;
+    }
+    
+    .text-gradient {
+        background: linear-gradient(90deg, #3498db, #2c3e50);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        display: inline-block;
+    }
+    
+    .feature-card {
+        transform: perspective(1000px) rotateY(0deg);
+        transition: transform 0.6s ease;
+    }
+    
+    .feature-card:hover {
+        transform: perspective(1000px) rotateY(2deg);
+    }
+    
     .feature-item {
         display: flex;
+        align-items: flex-start;
+        transition: all 0.3s ease;
+        padding: 12px;
+        border-radius: 10px;
+    }
+    
+    .hover-effect:hover {
+        transform: translateX(5px);
+        background-color: rgba(52, 152, 219, 0.05);
+    }
+    
+    .feature-icon {
+        width: 48px;
+        height: 48px;
+        display: flex;
         align-items: center;
-        gap: 1rem;
+        justify-content: center;
+        background-color: rgba(52, 152, 219, 0.1);
+        border-radius: 12px;
+        margin-right: 16px;
+        transition: all 0.3s ease;
     }
-    .feature-item i {
+    
+    .feature-item:hover .feature-icon {
+        background-color: #3498db;
+        transform: scale(1.1);
+    }
+    
+    .feature-item:hover .feature-icon i {
+        color: white !important;
+    }
+    
+    .feature-icon i {
         font-size: 1.5rem;
+        color: #3498db;
+        transition: all 0.3s ease;
     }
+    
+    .highlight-icon {
+        background-color: rgba(241, 196, 15, 0.1);
+    }
+    
+    .highlight-icon i {
+        color: #f1c40f;
+    }
+    
+    .feature-item:hover .highlight-icon {
+        background-color: #f1c40f;
+    }
+    
+    .highlight {
+        position: relative;
+        z-index: 1;
+    }
+    
+    .highlight:after {
+        content: "";
+        position: absolute;
+        width: 100%;
+        height: 8px;
+        background-color: rgba(52, 152, 219, 0.2);
+        bottom: 0;
+        left: 0;
+        z-index: -1;
+    }
+    
     .btn-primary {
         background-color: #3498db;
         border-color: #3498db;
+        box-shadow: 0 4px 15px rgba(52, 152, 219, 0.4);
+        transition: all 0.3s ease;
     }
+    
     .btn-primary:hover {
         background-color: #2980b9;
         border-color: #2980b9;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(52, 152, 219, 0.6);
     }
+    
+    .pulse-btn {
+        animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+        0% {
+            box-shadow: 0 0 0 0 rgba(52, 152, 219, 0.7);
+        }
+        70% {
+            box-shadow: 0 0 0 10px rgba(52, 152, 219, 0);
+        }
+        100% {
+            box-shadow: 0 0 0 0 rgba(52, 152, 219, 0);
+        }
+    }
+    
     .btn-outline-primary {
         color: #3498db;
         border-color: #3498db;
+        transition: all 0.3s ease;
     }
+    
     .btn-outline-primary:hover {
         background-color: #3498db;
         border-color: #3498db;
+        transform: translateY(-2px);
+    }
+    
+    .shape-divider {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        overflow: hidden;
+        line-height: 0;
+    }
+    
+    .shape-divider svg {
+        position: relative;
+        display: block;
+        width: calc(100% + 1.3px);
+        height: 80px;
+    }
+    
+    .shape-divider .shape-fill {
+        fill: #FFFFFF;
+    }
+    
+    @media (max-width: 767.98px) {
+        .welcome-hero {
+            padding: 60px 0 100px;
+        }
+        
+        .feature-card {
+            margin-top: 40px;
+        }
     }
 </style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // 检查是否已加载AOS库，如果没有则动态加载
+    if (typeof AOS === 'undefined') {
+        // 加载AOS CSS
+        var link = document.createElement('link');
+        link.rel = 'stylesheet';
+        link.href = 'https://unpkg.com/aos@next/dist/aos.css';
+        document.head.appendChild(link);
+        
+        // 加载AOS JS
+        var script = document.createElement('script');
+        script.src = 'https://unpkg.com/aos@next/dist/aos.js';
+        script.onload = function() {
+            AOS.init();
+        };
+        document.head.appendChild(script);
+    } else {
+        AOS.init();
+    }
+</script>
 {% endblock %} 
