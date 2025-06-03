@@ -5,11 +5,18 @@ Django 设置文件
 import os
 from pathlib import Path
 
+# 尝试导入dotenv库来加载.env文件
+try:
+    from dotenv import load_dotenv
+    load_dotenv()  # 从.env文件加载环境变量
+except ImportError:
+    pass  # 如果没有安装python-dotenv，则忽略
+
 # 项目根目录
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # 安全密钥
-SECRET_KEY = 'django-insecure-flomo2-development-key-change-in-production'
+SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-flomo2-development-key-change-in-production')
 
 # 调试模式
 DEBUG = True
@@ -119,4 +126,4 @@ CACHES = {
 }
 
 # DeepSeek API 配置
-DEEPSEEK_API_KEY = os.environ.get("DEEPSEEK_API_KEY", "")  # 从环境变量获取API密钥 
+DEEPSEEK_API_KEY = os.environ.get("DEEPSEEK_API_KEY", "") 

@@ -1,0 +1,1 @@
+web: python manage.py collectstatic --noinput && python manage.py migrate && gunicorn flomo2.wsgi:application --log-file - --log-level debug 
