@@ -45,8 +45,12 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 # 安全中间件
 MIDDLEWARE.insert(1, 'whitenoise.middleware.WhiteNoiseMiddleware')
 
+# Railway代理设置
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
 # HTTPS设置（在生产环境中启用）
-SECURE_SSL_REDIRECT = True
+# 禁用SECURE_SSL_REDIRECT以避免重定向循环
+SECURE_SSL_REDIRECT = False  # 改为False，因为Railway已经处理HTTPS
 SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
 SECURE_BROWSER_XSS_FILTER = True
