@@ -119,4 +119,4 @@ CACHES = {
 }
 
 # DeepSeek API 配置
-DEEPSEEK_API_KEY = "sk-d404983295a94944b91d0ebcb684dc89"  # 请替换为您的有效API密钥 
+DEEPSEEK_API_KEY = os.environ.get("DEEPSEEK_API_KEY", "")  # 从环境变量获取API密钥 

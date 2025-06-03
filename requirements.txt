@@ -1,7 +1,23 @@
-beautifulsoup4==4.13.4
+# Web框架和核心组件
 Django==4.2.7
-Pillow==10.0.0  # 处理图片上传
-python-dateutil==2.8.2
-whitenoise==6.5.0  # 静态文件处理
 django-crispy-forms==2.0  # 美化表单
-crispy-bootstrap5==0.7  # Bootstrap 5 模板 
+crispy-bootstrap5==0.7  # Bootstrap 5 模板
+whitenoise==6.5.0  # 静态文件处理
+
+# 数据处理
+beautifulsoup4==4.13.4  # HTML解析
+Pillow==10.0.0  # 图片处理
+python-dateutil==2.8.2  # 日期处理
+pytz==2023.3  # 时区处理
+
+# 网络和API
+requests==2.31.0  # HTTP请求
+urllib3==2.0.7  # HTTP客户端
+dj-database-url==2.1.0  # 数据库URL解析
+
+# 部署工具
+gunicorn==21.2.0  # WSGI HTTP服务器
+psycopg2-binary==2.9.9  # PostgreSQL适配器（生产环境PostgreSQL）
+
+# 安全与调试
+python-dotenv==1.0.0  # 环境变量管理
