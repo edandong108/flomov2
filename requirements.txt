@@ -5,3 +5,4 @@ python-dateutil==2.8.2
 whitenoise==6.5.0  # 静态文件处理
 django-crispy-forms==2.0  # 美化表单
 crispy-bootstrap5==0.7  # Bootstrap 5 模板 
+requests==2.31.0
