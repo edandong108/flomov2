@@ -1019,43 +1019,24 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function updatePageTitle(tagName, totalCount) {
-        const mainContent = document.querySelector('.main-content');
-        let titleElement = mainContent.querySelector('.filter-title');
-        
-        if (!titleElement) {
-            titleElement = document.createElement('div');
-            titleElement.className = 'filter-title mb-3';
-            const quickInput = mainContent.querySelector('.quick-input-card');
-            quickInput.insertAdjacentElement('afterend', titleElement);
-        }
-        
-        if (tagName) {
-            titleElement.innerHTML = `
-                <div class="d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0">
-                        <i class="bi bi-tag-fill text-primary"></i> 
-                        ${tagName} 
-                        <span class="badge bg-primary">${totalCount}</span>
-                    </h5>
-                    <button class="btn btn-sm btn-outline-secondary" onclick="clearTagFilter()">
-                        <i class="bi bi-x-lg"></i> 清除筛选
-                    </button>
-                </div>
-                <hr>
-            `;
-        } else {
-            titleElement.style.display = 'none';
-        }
+        // 不显示筛选标题框，只更新标签的激活状态
+        return;
     }
 
     function clearTagFilter() {
         currentTagId = null;
         currentTagName = null;
         
-        // 清除所有标签的激活状态
+        // 清除所有标签的激活状态，激活"所有笔记"
         document.querySelectorAll('.tag-filter-link').forEach(link => {
             link.classList.remove('active');
         });
+        
+        // 激活"所有笔记"链接
+        const allNotesLink = document.querySelector('[data-tag-id=""]');
+        if (allNotesLink) {
+            allNotesLink.classList.add('active');
+        }
         
         // 重新加载所有笔记
         filterByTag(null, null);
