@@ -17,6 +17,7 @@ urlpatterns = [
     path('tags/<int:tag_id>/', views.tag_detail, name='tag_detail'),
     path('tags/<int:tag_id>/edit/', views.edit_tag, name='edit_tag'),
     path('tags/<int:tag_id>/delete/', views.delete_tag, name='delete_tag'),
+    path('api/notes/filter-by-tag/', views.filter_notes_by_tag, name='filter_notes_by_tag'),
     
     # 搜索和回顾
     path('search/', views.search, name='search'),

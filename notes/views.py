@@ -416,6 +416,125 @@ def get_mentor_insights_view(request):
 
 
 @login_required
+def filter_notes_by_tag(request):
+    """根据标签筛选笔记的AJAX端点"""
+    if not request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        return JsonResponse({'success': False, 'error': '非法请求'})
+    
+    tag_id = request.GET.get('tag_id')
+    page = request.GET.get('page', 1)
+    
+    if tag_id:
+        try:
+            tag = get_object_or_404(Tag, id=tag_id)
+            # 获取该标签下的所有笔记（包括子标签）
+            notes = Note.objects.filter(
+                user=request.user,
+                tags__in=[tag] + tag.get_all_children()
+            ).distinct().order_by('-created_at')
+        except:
+            return JsonResponse({'success': False, 'error': '标签不存在'})
+    else:
+        # 如果没有指定标签，返回所有笔记
+        notes = Note.objects.filter(user=request.user).order_by('-created_at')
+    
+    # 分页处理
+    paginator = Paginator(notes, 20)
+    notes_page = paginator.get_page(page)
+    
+    # 构建笔记列表的HTML
+    notes_html = []
+    for note in notes_page:
+        tags_html = ''
+        if note.tags.exists():
+            for tag in note.tags.all():
+                tags_html += f'<a href="#" class="tag-badge" style="background-color: {tag.color}20; color: {tag.color};" onclick="filterByTag({tag.id}, \'{tag.name}\'); return false;">{tag.name}</a>'
+        
+        note_html = f'''
+        <div class="note-card mb-3 fade-in">
+            <div class="card glass-effect">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <div class="note-meta text-muted small">
+                            {note.created_at.strftime("%Y-%m-%d %H:%M")}
+                        </div>
+                        <div class="note-actions">
+                            <a href="/notes/{note.id}/edit/" class="btn btn-link btn-sm text-muted p-0 me-2">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                            <a href="/notes/{note.id}/delete/" class="btn btn-link btn-sm text-danger p-0">
+                                <i class="bi bi-trash"></i>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="note-content">{note.content}</div>
+                    {f'<div class="note-tags mt-3">{tags_html}</div>' if tags_html else ''}
+                </div>
+            </div>
+        </div>
+        '''
+        notes_html.append(note_html)
+    
+    # 分页HTML
+    pagination_html = ''
+    if paginator.num_pages > 1:
+        pagination_html = f'''
+        <nav aria-label="笔记分页" class="mt-4">
+            <ul class="pagination justify-content-center">
+        '''
+        
+        if notes_page.has_previous():
+            pagination_html += f'''
+                <li class="page-item">
+                    <a class="page-link" href="#" data-page="{notes_page.previous_page_number()}" aria-label="上一页">
+                        <span aria-hidden="true">&laquo;</span>
+                    </a>
+                </li>
+            '''
+        else:
+            pagination_html += '''
+                <li class="page-item disabled">
+                    <span class="page-link" aria-hidden="true">&laquo;</span>
+                </li>
+            '''
+        
+        for num in paginator.page_range:
+            if num == notes_page.number:
+                pagination_html += f'<li class="page-item active"><span class="page-link">{num}</span></li>'
+            elif abs(num - notes_page.number) <= 2:
+                pagination_html += f'<li class="page-item"><a class="page-link" href="#" data-page="{num}">{num}</a></li>'
+        
+        if notes_page.has_next():
+            pagination_html += f'''
+                <li class="page-item">
+                    <a class="page-link" href="#" data-page="{notes_page.next_page_number()}" aria-label="下一页">
+                        <span aria-hidden="true">&raquo;</span>
+                    </a>
+                </li>
+            '''
+        else:
+            pagination_html += '''
+                <li class="page-item disabled">
+                    <span class="page-link" aria-hidden="true">&raquo;</span>
+                </li>
+            '''
+        
+        pagination_html += '''
+            </ul>
+        </nav>
+        '''
+    
+    return JsonResponse({
+        'success': True,
+        'notes_html': ''.join(notes_html),
+        'pagination_html': pagination_html,
+        'total_count': paginator.count,
+        'current_page': notes_page.number,
+        'total_pages': paginator.num_pages
+    })
+
+
+@login_required
 def import_flomo(request):
     """导入Flomo笔记"""
     if request.method == 'POST':

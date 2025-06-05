@@ -6,7 +6,8 @@
     </span>
     {% endif %}
     
-    <a href="{% url 'notes:tag_detail' tag.id %}" class="tag-link {% if tag.id == current_tag.id %}active{% endif %}">
+    <a href="#" class="tag-link tag-filter-link {% if tag.id == current_tag.id %}active{% endif %}" 
+       data-tag-id="{{ tag.id }}" data-tag-name="{{ tag.name }}">
         {{ tag.name }}
         <span class="tag-count">({{ tag.notes.count }})</span>
     </a>

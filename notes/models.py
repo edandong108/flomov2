@@ -8,7 +8,7 @@ class Tag(models.Model):
     """标签模型"""
     name = models.CharField('名称', max_length=50)
     color = models.CharField('颜色', max_length=7, default='#3498db')  # 使用 HEX 颜色码
-    parent = models.ForeignKey('self', verbose_name='父标签', null=True, blank=True, on_delete=models.CASCADE)
+    parent = models.ForeignKey('self', verbose_name='父标签', null=True, blank=True, on_delete=models.CASCADE, related_name='children')
     created_at = models.DateTimeField('创建时间', auto_now_add=True)
     updated_at = models.DateTimeField('更新时间', auto_now=True)
     
@@ -26,6 +26,14 @@ class Tag(models.Model):
         if self.parent:
             return f"{self.parent.full_path}/{self.name}"
         return self.name
+    
+    def get_all_children(self):
+        """获取所有子标签（递归）"""
+        children = []
+        for child in self.children.all():
+            children.append(child)
+            children.extend(child.get_all_children())
+        return children
 
 
 class Note(models.Model):

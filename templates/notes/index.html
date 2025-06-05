@@ -563,6 +563,14 @@
                         </a>
                     </div>
                     <div class="tag-list glass-effect p-3 rounded-3">
+                        <!-- 所有笔记链接 -->
+                        <div class="tag-item mb-2">
+                            <a href="#" class="tag-link tag-filter-link active" data-tag-id="" data-tag-name="">
+                                <i class="bi bi-journal-text me-2"></i>所有笔记
+                                <span class="tag-count">({{ total_notes }})</span>
+                            </a>
+                        </div>
+                        <hr class="my-2">
                         {% include "notes/includes/tag_tree.html" with tags=tags %}
                     </div>
                 </div>
@@ -629,7 +637,7 @@
                             {% if note.tags.exists %}
                             <div class="note-tags mt-3">
                                 {% for tag in note.tags.all %}
-                                <a href="{% url 'notes:tag_detail' tag.id %}" class="tag-badge" style="background-color: {{ tag.color }}20; color: {{ tag.color }};">
+                                <a href="#" class="tag-badge tag-filter-link" style="background-color: {{ tag.color }}20; color: {{ tag.color }};" data-tag-id="{{ tag.id }}" data-tag-name="{{ tag.name }}">
                                     {{ tag.name }}
                                 </a>
                                 {% endfor %}
@@ -934,6 +942,139 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
     });
+
+    // 标签筛选功能
+    let currentTagId = null;
+    let currentTagName = null;
+
+    function filterByTag(tagId, tagName, page = 1) {
+        currentTagId = tagId;
+        currentTagName = tagName;
+        
+        // 更新标签样式
+        document.querySelectorAll('.tag-filter-link').forEach(link => {
+            link.classList.remove('active');
+        });
+        
+        if (tagId) {
+            const activeLink = document.querySelector(`[data-tag-id="${tagId}"]`);
+            if (activeLink) {
+                activeLink.classList.add('active');
+            }
+        }
+        
+        // 发送AJAX请求
+        fetch(`{% url 'notes:filter_notes_by_tag' %}?tag_id=${tagId || ''}&page=${page}`, {
+            method: 'GET',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // 更新笔记列表
+                const notesList = document.querySelector('.notes-list');
+                notesList.innerHTML = data.notes_html;
+                
+                // 更新分页
+                const existingPagination = document.querySelector('.pagination').parentElement;
+                if (existingPagination) {
+                    existingPagination.remove();
+                }
+                
+                if (data.pagination_html) {
+                    notesList.insertAdjacentHTML('afterend', data.pagination_html);
+                }
+                
+                // 绑定分页事件
+                bindPaginationEvents();
+                
+                // 滚动到顶部
+                document.querySelector('.main-content').scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
+                
+                // 更新页面标题提示
+                updatePageTitle(tagName, data.total_count);
+            } else {
+                console.error('筛选失败:', data.error);
+            }
+        })
+        .catch(error => {
+            console.error('筛选请求失败:', error);
+        });
+    }
+
+    function bindPaginationEvents() {
+        document.querySelectorAll('.pagination .page-link[data-page]').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                const page = this.dataset.page;
+                filterByTag(currentTagId, currentTagName, page);
+            });
+        });
+    }
+
+    function updatePageTitle(tagName, totalCount) {
+        const mainContent = document.querySelector('.main-content');
+        let titleElement = mainContent.querySelector('.filter-title');
+        
+        if (!titleElement) {
+            titleElement = document.createElement('div');
+            titleElement.className = 'filter-title mb-3';
+            const quickInput = mainContent.querySelector('.quick-input-card');
+            quickInput.insertAdjacentElement('afterend', titleElement);
+        }
+        
+        if (tagName) {
+            titleElement.innerHTML = `
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i class="bi bi-tag-fill text-primary"></i> 
+                        ${tagName} 
+                        <span class="badge bg-primary">${totalCount}</span>
+                    </h5>
+                    <button class="btn btn-sm btn-outline-secondary" onclick="clearTagFilter()">
+                        <i class="bi bi-x-lg"></i> 清除筛选
+                    </button>
+                </div>
+                <hr>
+            `;
+        } else {
+            titleElement.style.display = 'none';
+        }
+    }
+
+    function clearTagFilter() {
+        currentTagId = null;
+        currentTagName = null;
+        
+        // 清除所有标签的激活状态
+        document.querySelectorAll('.tag-filter-link').forEach(link => {
+            link.classList.remove('active');
+        });
+        
+        // 重新加载所有笔记
+        filterByTag(null, null);
+    }
+
+    // 绑定标签点击事件
+    document.addEventListener('click', function(e) {
+        if (e.target.closest('.tag-filter-link')) {
+            e.preventDefault();
+            const link = e.target.closest('.tag-filter-link');
+            const tagId = link.dataset.tagId;
+            const tagName = link.dataset.tagName;
+            filterByTag(tagId, tagName);
+        }
+    });
+
+    // 使函数全局可用
+    window.filterByTag = filterByTag;
+    window.clearTagFilter = clearTagFilter;
 });
 </script>
 {% endblock %} 
