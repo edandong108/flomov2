@@ -15,12 +15,8 @@
 - 前端：HTML, CSS, JavaScript
 - 数据库：SQLite（开发环境）/ PostgreSQL（生产环境）
 
-## 安装与运行
-
-1. 安装Python和pip
-2. 安装Django: `pip install django`
-3. 运行服务器: `C:\Users\lidon\AppData\Local\Programs\Python\Python312\python.exe manage.py runserver`
-4. 访问: http://localhost:8000
+## demo环境
+https://flomov2-production.up.railway.app/
 
 ## 项目结构
 
